@@ -1,0 +1,4 @@
+interface:
+  display_name: "SCM Figure Builder"
+  short_description: "Build Graphviz SCM figures with math legends"
+  default_prompt: "Use $scm-figure-builder to render mathematical and expanded-node SCM figures from this variable and edge specification."
