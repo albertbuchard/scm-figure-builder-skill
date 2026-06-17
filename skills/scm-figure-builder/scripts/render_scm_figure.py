@@ -24,6 +24,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
+from matplotlib import font_manager
 from matplotlib.lines import Line2D
 from matplotlib.patches import Circle, FancyArrowPatch, FancyBboxPatch, Polygon, Rectangle
 
@@ -73,6 +74,19 @@ EDGE_STYLES = {
     "scoring": {"style": "dotted", "color": "#8A8A8A", "legend": "observation/scoring"},
     "absent": {"style": "dashed", "color": "#75869E", "legend": "absent/null path"},
 }
+
+
+def _legend_math_rc_params() -> dict[str, str]:
+    """Use Times-style math in the Matplotlib legend to match Graphviz node labels."""
+    available_fonts = {font.name for font in font_manager.fontManager.ttflist}
+    if "Times New Roman" in available_fonts:
+        return {
+            "mathtext.fontset": "custom",
+            "mathtext.rm": "Times New Roman",
+            "mathtext.it": "Times New Roman:italic",
+            "mathtext.bf": "Times New Roman:bold",
+        }
+    return {"mathtext.fontset": "stix"}
 
 
 def _q(value: Any) -> str:
@@ -402,13 +416,14 @@ def _draw_legend(ax: Any, spec: dict[str, Any], mode: str) -> None:
     section_break()
     ax.text(0.09, y, "Graph encoding", ha="left", va="top", fontsize=8.2, weight="bold", color="#6B7280")
     y -= 0.065
+    shape_label_fontsize = 6.6 if any(len(label) > 16 for _, label in shape_items) else 7.0
     for i, (kind, label) in enumerate(shape_items):
         col = i % 2
         row = i // 2
-        x = [0.14, 0.52][col]
+        x = [0.12, 0.66][col]
         y_item = y - row * 0.064
         _draw_shape(ax, kind, x, y_item, size=0.060)
-        ax.text(x + 0.075, y_item, label, ha="left", va="center", fontsize=7.0, color="#374151")
+        ax.text(x + 0.070, y_item, label, ha="left", va="center", fontsize=shape_label_fontsize, color="#374151")
     y -= shape_rows * 0.064 + 0.024
 
     for i, kind in enumerate(edge_items):
@@ -423,19 +438,20 @@ def _draw_legend(ax: Any, spec: dict[str, Any], mode: str) -> None:
 
 
 def compose_figure(graph_png_path: Path, output_png: Path, output_pdf: Path, spec: dict[str, Any], mode: str, dpi: int) -> None:
-    img = mpimg.imread(graph_png_path)
-    fig = plt.figure(figsize=(13.8, 6.2), dpi=dpi)
-    legend_ax = fig.add_axes([0.015, 0.06, 0.255, 0.88])
-    graph_ax = fig.add_axes([0.285, 0.05, 0.70, 0.90])
-    _draw_legend(legend_ax, spec, mode)
-    graph_ax.imshow(img)
-    graph_ax.set_axis_off()
-    title = spec.get("title")
-    if title and not spec.get("suppress_title", True):
-        fig.suptitle(str(title), x=0.50, y=0.985, fontsize=13, weight="bold")
-    fig.savefig(output_png, dpi=dpi, bbox_inches="tight", pad_inches=0.04)
-    fig.savefig(output_pdf, bbox_inches="tight", pad_inches=0.04)
-    plt.close(fig)
+    with plt.rc_context(_legend_math_rc_params()):
+        img = mpimg.imread(graph_png_path)
+        fig = plt.figure(figsize=(13.8, 6.2), dpi=dpi)
+        legend_ax = fig.add_axes([0.015, 0.06, 0.255, 0.88])
+        graph_ax = fig.add_axes([0.285, 0.05, 0.70, 0.90])
+        _draw_legend(legend_ax, spec, mode)
+        graph_ax.imshow(img)
+        graph_ax.set_axis_off()
+        title = spec.get("title")
+        if title and not spec.get("suppress_title", True):
+            fig.suptitle(str(title), x=0.50, y=0.985, fontsize=13, weight="bold")
+        fig.savefig(output_png, dpi=dpi, bbox_inches="tight", pad_inches=0.04)
+        fig.savefig(output_pdf, bbox_inches="tight", pad_inches=0.04)
+        plt.close(fig)
 
 
 def default_caption(spec: dict[str, Any], mode: str) -> str:

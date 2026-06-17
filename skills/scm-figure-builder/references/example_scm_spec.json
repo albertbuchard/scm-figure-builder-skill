@@ -4,12 +4,12 @@
   "nodesep": 0.72,
   "ranksep": 1.0,
   "nodes": [
-    {"id": "U", "symbol": "U", "label": "latent subject state", "kind": "latent", "rank": 0},
-    {"id": "D", "symbol": "D", "label": "diagnosis label", "kind": "observed", "rank": 1},
-    {"id": "S_D0", "symbol": "S_D=0", "label": "zero diagnosis ROI-time pattern", "kind": "roi_pattern", "style": "dashed", "rank": 2},
-    {"id": "S_U", "symbol": "S_U", "label": "U nuisance ROI-time pattern", "kind": "roi_pattern", "style": "dashed", "rank": 2},
-    {"id": "X", "symbol": "X", "label": "generated BOLD/tokens", "kind": "generated", "rank": 3},
-    {"id": "M", "symbol": "M", "label": "scoring endpoint", "kind": "endpoint", "rank": 4}
+    {"id": "U", "symbol": "U_s", "label": "latent subject state", "kind": "latent", "rank": 0},
+    {"id": "D", "symbol": "D_i", "label": "diagnosis label", "kind": "observed", "rank": 1},
+    {"id": "S_D0", "symbol": "S_D0", "label": "zero diagnosis ROI-time support", "kind": "roi_pattern", "style": "dashed", "rank": 2},
+    {"id": "S_U", "symbol": "S_u", "label": "subject-state nuisance ROI-time support", "kind": "roi_pattern", "style": "dashed", "rank": 2},
+    {"id": "X", "symbol": "X_b", "label": "generated BOLD/tokens", "kind": "generated", "rank": 3},
+    {"id": "M", "symbol": "Q_m", "label": "scoring endpoint", "kind": "endpoint", "rank": 4}
   ],
   "edges": [
     {"source": "U", "target": "D", "kind": "structural"},
@@ -18,5 +18,5 @@
     {"source": "S_U", "target": "X", "kind": "structural"},
     {"source": "X", "target": "M", "kind": "observation"}
   ],
-  "caption": "Mathematical-letter SCM for measured confounding with a null diagnosis effect. Solid arrows are structural data-generating links, dotted arrows are observation/scoring links, and dashed arrows mark absent/null structural paths rather than estimated no-effect results. This is a data-generating schematic; it is not fitted causal discovery, model performance evidence, or biological localization."
+  "caption": "Mathematical-letter SCM for measured confounding with a null diagnosis effect. The reference spec intentionally uses subscripted symbols such as U_s, D_i, S_D0, S_u, X_b, and Q_m to demonstrate complex variable naming. Solid arrows are structural data-generating links, dotted arrows are observation/scoring links, and dashed arrows mark absent/null structural paths rather than estimated no-effect results. This is a data-generating schematic; it is not fitted causal discovery, model performance evidence, or biological localization."
 }

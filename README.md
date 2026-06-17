@@ -11,6 +11,7 @@ It supports two figure styles:
 
 Both figures below are rendered from the same multi-confounder smoking/lung-cancer SCM spec.
 The graph uses Graphviz/DOT for layout and Matplotlib for the legend.
+The mathematical panel demonstrates subscripted variable symbols such as `S_u`, `A_s`, and `Y_c`.
 
 ### Mathematical SCM
 

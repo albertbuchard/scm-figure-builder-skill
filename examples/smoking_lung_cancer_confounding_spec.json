@@ -7,7 +7,7 @@
   "nodes": [
     {
       "id": "G",
-      "symbol": "G",
+      "symbol": "G_f",
       "label": "inherited/family risk",
       "kind": "chance",
       "fill": "#D8EAFE",
@@ -17,7 +17,7 @@
     },
     {
       "id": "C",
-      "symbol": "C",
+      "symbol": "C_a",
       "label": "age cohort",
       "kind": "chance",
       "fill": "#D8EAFE",
@@ -27,7 +27,7 @@
     },
     {
       "id": "S",
-      "symbol": "S",
+      "symbol": "S_u",
       "label": "socioeconomic context",
       "kind": "chance",
       "fill": "#D8EAFE",
@@ -37,7 +37,7 @@
     },
     {
       "id": "A",
-      "symbol": "A",
+      "symbol": "A_s",
       "label": "smoking exposure",
       "kind": "chance",
       "fill": "#FFE1B3",
@@ -47,7 +47,7 @@
     },
     {
       "id": "O",
-      "symbol": "O",
+      "symbol": "E_o",
       "label": "occupational exposure",
       "kind": "chance",
       "fill": "#D7F2E3",
@@ -57,7 +57,7 @@
     },
     {
       "id": "M",
-      "symbol": "M",
+      "symbol": "M_t",
       "label": "tar / airway injury",
       "kind": "chance",
       "fill": "#E7D8F7",
@@ -67,7 +67,7 @@
     },
     {
       "id": "Y",
-      "symbol": "Y",
+      "symbol": "Y_c",
       "label": "lung cancer",
       "kind": "chance",
       "fill": "#F8C4C4",
@@ -89,5 +89,5 @@
     {"source": "M", "target": "Y", "kind": "structural"},
     {"source": "A", "target": "Y", "kind": "structural"}
   ],
-  "caption": "Classic smoking/lung-cancer confounding SCM. Inherited/family risk G, age cohort C, and socioeconomic context S are pre-exposure common causes of smoking exposure A and lung cancer Y, opening backdoor paths such as A <- G -> Y, A <- C -> Y, and A <- S -> Y. Smoking also acts through tar or airway injury M, while socioeconomic context contributes through occupational exposure O. Estimating the causal effect of A on Y requires blocking the pre-exposure backdoor paths without conditioning away the mediator M. Solid arrows are structural data-generating links. This is a data-generating schematic; it is not fitted causal discovery, model performance evidence, or biological localization."
+  "caption": "Classic smoking/lung-cancer confounding SCM with LaTeX-style variable symbols. Inherited/family risk G_f, age cohort C_a, and socioeconomic context S_u are pre-exposure common causes of smoking exposure A_s and lung cancer Y_c, opening backdoor paths such as A_s <- G_f -> Y_c, A_s <- C_a -> Y_c, and A_s <- S_u -> Y_c. Smoking also acts through tar or airway injury M_t, while socioeconomic context contributes through occupational exposure E_o. Estimating the causal effect of A_s on Y_c requires blocking the pre-exposure backdoor paths without conditioning away the mediator M_t. Solid arrows are structural data-generating links. This is a data-generating schematic; it is not fitted causal discovery, model performance evidence, or biological localization."
 }
