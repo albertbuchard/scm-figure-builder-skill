@@ -228,7 +228,19 @@ def _draw_shape(ax: Any, kind: str, x: float, y: float, size: float = 0.045, lin
     edge = "#666666"
     fill = style["fill"]
     if kind in {"chance", "latent"}:
-        patch = Circle((x, y), size * 0.55, fc=fill, ec=edge, lw=1.2, ls=linestyle)
+        ax.plot(
+            [x],
+            [y],
+            marker="o",
+            markersize=18,
+            markerfacecolor=fill,
+            markeredgecolor=edge,
+            markeredgewidth=1.2,
+            linestyle="None",
+            transform=ax.transAxes,
+            clip_on=False,
+        )
+        return
     elif kind in {"observed", "decision"}:
         patch = Rectangle((x - size * 0.42, y - size * 0.42), size * 0.84, size * 0.84, fc=fill, ec=edge, lw=1.1, ls=linestyle)
     elif kind == "roi_pattern":
@@ -342,7 +354,7 @@ def _draw_legend(ax: Any, spec: dict[str, Any], mode: str) -> None:
     if color_items:
         height += (0.024 if section_count else 0) + 0.044 + color_rows * 0.060
         section_count += 1
-    height += (0.024 if section_count else 0) + 0.044 + shape_rows * 0.064 + 0.020 + edge_rows * 0.054
+    height += (0.024 if section_count else 0) + 0.059 + shape_rows * 0.064 + 0.020 + edge_rows * 0.054
     if "absent" in edge_items:
         height += 0.035
     top = 0.955
@@ -389,7 +401,7 @@ def _draw_legend(ax: Any, spec: dict[str, Any], mode: str) -> None:
 
     section_break()
     ax.text(0.09, y, "Graph encoding", ha="left", va="top", fontsize=8.2, weight="bold", color="#6B7280")
-    y -= 0.050
+    y -= 0.065
     for i, (kind, label) in enumerate(shape_items):
         col = i % 2
         row = i // 2
