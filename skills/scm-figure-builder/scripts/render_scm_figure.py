@@ -29,6 +29,11 @@ from matplotlib.patches import Circle, FancyArrowPatch, FancyBboxPatch, Polygon,
 
 
 NODE_STYLES = {
+    "chance": {
+        "shape": "circle",
+        "fill": "#FFFFFF",
+        "legend": "chance variable",
+    },
     "latent": {
         "shape": "circle",
         "fill": "#FFFFFF",
@@ -222,7 +227,7 @@ def _draw_shape(ax: Any, kind: str, x: float, y: float, size: float = 0.045, lin
     style = NODE_STYLES.get(kind, NODE_STYLES["observed"])
     edge = "#666666"
     fill = style["fill"]
-    if kind == "latent":
+    if kind in {"chance", "latent"}:
         patch = Circle((x, y), size * 0.55, fc=fill, ec=edge, lw=1.2, ls=linestyle)
     elif kind in {"observed", "decision"}:
         patch = Rectangle((x - size * 0.42, y - size * 0.42), size * 0.84, size * 0.84, fc=fill, ec=edge, lw=1.1, ls=linestyle)
@@ -306,13 +311,16 @@ def _draw_legend(ax: Any, spec: dict[str, Any], mode: str) -> None:
     ax.add_line(Line2D([0.09, 0.90], [sep_y, sep_y], lw=0.8, color="#E5E7EB"))
     ax.text(0.09, sep_y - 0.035, "Graph encoding", ha="left", va="top", fontsize=8.2, weight="bold", color="#6B7280")
 
-    shape_items = [
-        ("latent", "latent/oracle chance"),
-        ("observed", "observed/assigned"),
-        ("roi_pattern", "ROI-time pattern"),
-        ("generated", "generated BOLD"),
-        ("endpoint", "scoring endpoint"),
-    ]
+    used_kinds: list[str] = []
+    for node in spec.get("nodes", []):
+        kind = str(node.get("kind", "observed"))
+        if kind not in NODE_STYLES:
+            kind = "observed"
+        if kind not in used_kinds:
+            used_kinds.append(kind)
+    shape_items = [(kind, NODE_STYLES[kind]["legend"]) for kind in used_kinds]
+    if not shape_items:
+        shape_items = [("chance", NODE_STYLES["chance"]["legend"])]
     x_positions = [0.14, 0.52]
     y0 = sep_y - 0.095
     for i, (kind, label) in enumerate(shape_items):
@@ -323,11 +331,26 @@ def _draw_legend(ax: Any, spec: dict[str, Any], mode: str) -> None:
         _draw_shape(ax, kind, x, y_item, size=0.060)
         ax.text(x + 0.075, y_item, label, ha="left", va="center", fontsize=7.0, color="#374151")
 
+    used_edge_kinds: list[str] = []
+    for edge in spec.get("edges", []):
+        kind = str(edge.get("kind", "structural"))
+        if kind == "causal":
+            kind = "structural"
+        if kind == "scoring":
+            kind = "observation"
+        if kind not in EDGE_STYLES:
+            kind = "structural"
+        if kind not in used_edge_kinds:
+            used_edge_kinds.append(kind)
+    if not used_edge_kinds:
+        used_edge_kinds = ["structural"]
     y_edge = max(0.18, y0 - math.ceil(len(shape_items) / 2) * 0.085 - 0.025)
-    _draw_arrow_sample(ax, 0.12, 0.22, y_edge, "solid", "#5D5D5D", "structural link")
-    _draw_arrow_sample(ax, 0.12, 0.22, y_edge - 0.060, "dotted", "#8A8A8A", "observation/scoring")
-    _draw_arrow_sample(ax, 0.52, 0.62, y_edge, "dashed", "#75869E", "absent/null path")
-    ax.text(0.62, y_edge - 0.058, "not an estimated\nno-effect result", ha="left", va="center", fontsize=6.1, color="#6B7280")
+    edge_positions = [(0.12, y_edge), (0.12, y_edge - 0.060), (0.52, y_edge), (0.52, y_edge - 0.060)]
+    for (kind, (x0, y_sample)) in zip(used_edge_kinds, edge_positions):
+        style = EDGE_STYLES[kind]
+        _draw_arrow_sample(ax, x0, x0 + 0.10, y_sample, style["style"], style["color"], style["legend"])
+        if kind == "absent":
+            ax.text(x0 + 0.10, y_sample - 0.058, "not an estimated\nno-effect result", ha="left", va="center", fontsize=6.1, color="#6B7280")
 
 
 def compose_figure(graph_png_path: Path, output_png: Path, output_pdf: Path, spec: dict[str, Any], mode: str, dpi: int) -> None:

@@ -27,6 +27,7 @@ Purpose: readable audit/report panel.
 
 Use stable node kinds:
 
+- `chance`: circular node for ordinary random variables in standard SCM/DAG examples.
 - `latent`: circular node for latent or oracle-only chance variables.
 - `observed`: square node for measured, assigned, or observed variables.
 - `roi_pattern`: rounded rectangle for simulator-defined ROI-time effect, nuisance, shortcut, or cue patterns.
