@@ -274,64 +274,19 @@ def _draw_arrow_sample(ax: Any, x0: float, x1: float, y: float, style: str, colo
     ax.text(x1 + 0.025, y, label, ha="left", va="center", fontsize=7.5, color="#374151")
 
 
-def _draw_legend(ax: Any, spec: dict[str, Any], mode: str) -> None:
-    ax.set_axis_off()
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
-    ax.add_patch(Rectangle((0.04, 0.04), 0.92, 0.92, fc="white", ec="#8A8A8A", lw=1.0))
-
-    y = 0.91
-    if mode == "math":
-        ax.text(0.09, y, "Variable symbols", ha="left", va="top", fontsize=8.2, weight="bold", color="#6B7280")
-        y -= 0.055
-        nodes = spec.get("nodes", [])
-        max_rows = int(spec.get("legend_max_symbols", 9))
-        row_gap = min(0.055, 0.42 / max(len(nodes[:max_rows]), 1))
-        symbol_x = 0.16
-        label_x = 0.26
-        for node in nodes[:max_rows]:
-            ax.text(
-                symbol_x,
-                y,
-                _symbol_to_mathtext(node.get("symbol", node["id"])),
-                ha="center",
-                va="center",
-                fontsize=10.5,
-                color="#111827",
-            )
-            ax.text(label_x, y, str(node.get("label", node["id"])), ha="left", va="center", fontsize=7.2, color="#374151")
-            y -= row_gap
-        if len(nodes) > max_rows:
-            ax.text(label_x, y, f"+ {len(nodes) - max_rows} more in caption/spec", ha="left", va="center", fontsize=6.8, color="#6B7280")
-            y -= row_gap
-        sep_y = max(y - 0.01, 0.52)
-    else:
-        sep_y = 0.90
-
-    ax.add_line(Line2D([0.09, 0.90], [sep_y, sep_y], lw=0.8, color="#E5E7EB"))
-    ax.text(0.09, sep_y - 0.035, "Graph encoding", ha="left", va="top", fontsize=8.2, weight="bold", color="#6B7280")
-
-    used_kinds: list[str] = []
+def _used_node_kinds(spec: dict[str, Any]) -> list[str]:
+    used: list[str] = []
     for node in spec.get("nodes", []):
         kind = str(node.get("kind", "observed"))
         if kind not in NODE_STYLES:
             kind = "observed"
-        if kind not in used_kinds:
-            used_kinds.append(kind)
-    shape_items = [(kind, NODE_STYLES[kind]["legend"]) for kind in used_kinds]
-    if not shape_items:
-        shape_items = [("chance", NODE_STYLES["chance"]["legend"])]
-    x_positions = [0.14, 0.52]
-    y0 = sep_y - 0.095
-    for i, (kind, label) in enumerate(shape_items):
-        col = i % 2
-        row = i // 2
-        x = x_positions[col]
-        y_item = y0 - row * 0.085
-        _draw_shape(ax, kind, x, y_item, size=0.060)
-        ax.text(x + 0.075, y_item, label, ha="left", va="center", fontsize=7.0, color="#374151")
+        if kind not in used:
+            used.append(kind)
+    return used or ["chance"]
 
-    used_edge_kinds: list[str] = []
+
+def _used_edge_kinds(spec: dict[str, Any]) -> list[str]:
+    used: list[str] = []
     for edge in spec.get("edges", []):
         kind = str(edge.get("kind", "structural"))
         if kind == "causal":
@@ -340,17 +295,119 @@ def _draw_legend(ax: Any, spec: dict[str, Any], mode: str) -> None:
             kind = "observation"
         if kind not in EDGE_STYLES:
             kind = "structural"
-        if kind not in used_edge_kinds:
-            used_edge_kinds.append(kind)
-    if not used_edge_kinds:
-        used_edge_kinds = ["structural"]
-    y_edge = max(0.18, y0 - math.ceil(len(shape_items) / 2) * 0.085 - 0.025)
-    edge_positions = [(0.12, y_edge), (0.12, y_edge - 0.060), (0.52, y_edge), (0.52, y_edge - 0.060)]
-    for (kind, (x0, y_sample)) in zip(used_edge_kinds, edge_positions):
+        if kind not in used:
+            used.append(kind)
+    return used or ["structural"]
+
+
+def _color_group_items(spec: dict[str, Any]) -> list[tuple[str, str]]:
+    items: list[tuple[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+    for node in spec.get("nodes", []):
+        label = node.get("group_label") or node.get("group")
+        if not label:
+            continue
+        kind = str(node.get("kind", "observed"))
+        fill = str(node.get("fill", NODE_STYLES.get(kind, NODE_STYLES["observed"])["fill"]))
+        key = (str(label), fill)
+        if key not in seen:
+            items.append(key)
+            seen.add(key)
+    return items
+
+
+def _draw_legend(ax: Any, spec: dict[str, Any], mode: str) -> None:
+    ax.set_axis_off()
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    nodes = list(spec.get("nodes", []))
+    max_rows = int(spec.get("legend_max_symbols", 9))
+    variable_rows = nodes[:max_rows] if mode == "math" else []
+    color_items = _color_group_items(spec)
+    shape_items = [(kind, NODE_STYLES[kind]["legend"]) for kind in _used_node_kinds(spec)]
+    edge_items = _used_edge_kinds(spec)
+
+    var_row_gap = 0.043
+    color_cols = 3 if len(color_items) > 4 else 2
+    color_rows = math.ceil(len(color_items) / color_cols)
+    shape_rows = math.ceil(len(shape_items) / 2)
+    edge_rows = math.ceil(len(edge_items) / 2)
+    height = 0.070
+    section_count = 0
+    if variable_rows:
+        height += 0.044 + len(variable_rows) * var_row_gap
+        if len(nodes) > max_rows:
+            height += 0.038
+        section_count += 1
+    if color_items:
+        height += (0.024 if section_count else 0) + 0.044 + color_rows * 0.060
+        section_count += 1
+    height += (0.024 if section_count else 0) + 0.044 + shape_rows * 0.064 + 0.020 + edge_rows * 0.054
+    if "absent" in edge_items:
+        height += 0.035
+    top = 0.955
+    bottom = max(0.040, top - min(height, 0.91))
+    ax.add_patch(Rectangle((0.04, bottom), 0.92, top - bottom, fc="white", ec="#8A8A8A", lw=1.0))
+
+    y = top - 0.045
+    has_previous_section = False
+
+    def section_break() -> None:
+        nonlocal y, has_previous_section
+        if has_previous_section:
+            y -= 0.008
+            ax.add_line(Line2D([0.09, 0.90], [y, y], lw=0.8, color="#E5E7EB"))
+            y -= 0.022
+        has_previous_section = True
+
+    if variable_rows:
+        section_break()
+        ax.text(0.09, y, "Variable symbols", ha="left", va="top", fontsize=8.2, weight="bold", color="#6B7280")
+        y -= 0.048
+        symbol_x = 0.16
+        label_x = 0.26
+        for node in variable_rows:
+            ax.text(symbol_x, y, _symbol_to_mathtext(node.get("symbol", node["id"])), ha="center", va="center", fontsize=10.5, color="#111827")
+            ax.text(label_x, y, str(node.get("label", node["id"])), ha="left", va="center", fontsize=7.2, color="#374151")
+            y -= var_row_gap
+        if len(nodes) > max_rows:
+            ax.text(label_x, y, f"+ {len(nodes) - max_rows} more in caption/spec", ha="left", va="center", fontsize=6.8, color="#6B7280")
+            y -= 0.038
+
+    if color_items:
+        section_break()
+        ax.text(0.09, y, "Color groups", ha="left", va="top", fontsize=8.2, weight="bold", color="#6B7280")
+        y -= 0.048
+        for i, (label, fill) in enumerate(color_items):
+            col = i % color_cols
+            row = i // color_cols
+            x = ([0.10, 0.39, 0.68] if color_cols == 3 else [0.11, 0.51])[col]
+            y_item = y - row * 0.060
+            ax.add_patch(Rectangle((x, y_item - 0.016), 0.044, 0.032, fc=fill, ec="#666666", lw=0.8))
+            ax.text(x + 0.058, y_item, label, ha="left", va="center", fontsize=6.6 if color_cols == 3 else 7.0, color="#374151")
+        y -= color_rows * 0.060
+
+    section_break()
+    ax.text(0.09, y, "Graph encoding", ha="left", va="top", fontsize=8.2, weight="bold", color="#6B7280")
+    y -= 0.050
+    for i, (kind, label) in enumerate(shape_items):
+        col = i % 2
+        row = i // 2
+        x = [0.14, 0.52][col]
+        y_item = y - row * 0.064
+        _draw_shape(ax, kind, x, y_item, size=0.060)
+        ax.text(x + 0.075, y_item, label, ha="left", va="center", fontsize=7.0, color="#374151")
+    y -= shape_rows * 0.064 + 0.024
+
+    for i, kind in enumerate(edge_items):
+        col = i % 2
+        row = i // 2
+        x0 = [0.12, 0.52][col]
+        y_sample = y - row * 0.054
         style = EDGE_STYLES[kind]
         _draw_arrow_sample(ax, x0, x0 + 0.10, y_sample, style["style"], style["color"], style["legend"])
         if kind == "absent":
-            ax.text(x0 + 0.10, y_sample - 0.058, "not an estimated\nno-effect result", ha="left", va="center", fontsize=6.1, color="#6B7280")
+            ax.text(x0 + 0.10, y_sample - 0.052, "not an estimated\nno-effect result", ha="left", va="center", fontsize=6.1, color="#6B7280")
 
 
 def compose_figure(graph_png_path: Path, output_png: Path, output_pdf: Path, spec: dict[str, Any], mode: str, dpi: int) -> None:

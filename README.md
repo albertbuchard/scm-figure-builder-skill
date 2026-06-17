@@ -7,6 +7,19 @@ It supports two figure styles:
 - **Mathematical SCM**: nodes contain mathematical symbols only; the legend maps symbols to variables.
 - **Expanded node names**: nodes contain short semantic labels for readable report/audit figures.
 
+## Example Output
+
+Both figures below are rendered from the same multi-confounder smoking/lung-cancer SCM spec.
+The graph uses Graphviz/DOT for layout and Matplotlib for the legend.
+
+### Mathematical SCM
+
+![Mathematical SCM example](examples/smoking_lung_cancer_confounding_math.png)
+
+### Expanded Node Names
+
+![Expanded SCM example](examples/smoking_lung_cancer_confounding_expanded.png)
+
 The rendering approach is the one used for the MDAI thesis SCM figures:
 
 1. Define the SCM as JSON.
@@ -36,7 +49,7 @@ cp -R skills/scm-figure-builder .agents/skills/scm-figure-builder
 
 ```bash
 python3 skills/scm-figure-builder/scripts/render_scm_figure.py \
-  --spec skills/scm-figure-builder/references/example_scm_spec.json \
+  --spec examples/smoking_lung_cancer_confounding_spec.json \
   --out /tmp/scm_math.png \
   --mode math
 ```
@@ -45,7 +58,7 @@ Use `--mode expanded` for semantic node labels:
 
 ```bash
 python3 skills/scm-figure-builder/scripts/render_scm_figure.py \
-  --spec skills/scm-figure-builder/references/example_scm_spec.json \
+  --spec examples/smoking_lung_cancer_confounding_spec.json \
   --out /tmp/scm_expanded.png \
   --mode expanded
 ```
@@ -54,7 +67,7 @@ If system Graphviz `dot` is unavailable, pass a Viz.js renderer compatible with 
 
 ```bash
 python3 skills/scm-figure-builder/scripts/render_scm_figure.py \
-  --spec skills/scm-figure-builder/references/example_scm_spec.json \
+  --spec examples/smoking_lung_cancer_confounding_spec.json \
   --out /tmp/scm_math.png \
   --mode math \
   --vizjs-renderer /path/to/render-dot.mjs
@@ -74,4 +87,6 @@ python3 skills/scm-figure-builder/scripts/render_scm_figure.py \
 - `skills/scm-figure-builder/scripts/render_scm_figure.py`: reusable renderer.
 - `skills/scm-figure-builder/references/scm_figure_contract.md`: figure semantics and quality contract.
 - `skills/scm-figure-builder/references/example_scm_spec.json`: minimal example graph specification.
-
+- `examples/smoking_lung_cancer_confounding_spec.json`: richer colored course-style confounding example.
+- `examples/smoking_lung_cancer_confounding_math.png`: rendered mathematical SCM screenshot.
+- `examples/smoking_lung_cancer_confounding_expanded.png`: rendered expanded-node screenshot.

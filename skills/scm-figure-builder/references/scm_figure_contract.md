@@ -37,6 +37,16 @@ Use stable node kinds:
 
 Prefer names such as `diagnosis ROI-time pattern`, `cue ROI-time pattern`, or `U nuisance ROI-time pattern`. Avoid the bare term `support` unless the caption explicitly defines it as selected ROI-time cells or a planted ROI-time pattern.
 
+## Color Groups
+
+For richer explanatory examples, nodes may carry visual group metadata:
+
+```json
+{"id": "Z", "fill": "#D8EAFE", "group": "confounder", "group_label": "confounder"}
+```
+
+The renderer builds a `Color groups` legend section from unique `group_label` or `group` values and their `fill` colors. Use colors to explain conceptual roles such as confounders, exposure, mediator, and outcome. Do not rely on color alone when the same meaning can be expressed by node labels and caption text.
+
 ## Edge Semantics
 
 Use stable edge kinds:
@@ -62,6 +72,8 @@ Use rank hints only to express hierarchy, not to hand-draw every edge:
 ```
 
 If edges overlap labels, adjust `rank`, `rankdir`, `nodesep`, or `ranksep` in the spec and rerun. Do not manually move arrows in an image editor.
+
+The legend box is content-aware: it should contain only the variable symbols, color groups, node shapes, and edge styles used by the current graph. Expanded-node figures should not show a separator above `Graph encoding` when no variable-symbol section is present.
 
 ## Required Claim Boundary
 

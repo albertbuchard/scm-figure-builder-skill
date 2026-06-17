@@ -1,0 +1,93 @@
+{
+  "title": "Smoking and lung cancer: multi-confounder backdoor SCM",
+  "rankdir": "LR",
+  "nodesep": 0.66,
+  "ranksep": 0.92,
+  "legend_max_symbols": 8,
+  "nodes": [
+    {
+      "id": "G",
+      "symbol": "G",
+      "label": "inherited/family risk",
+      "kind": "chance",
+      "fill": "#D8EAFE",
+      "group": "confounder",
+      "group_label": "confounders",
+      "rank": 0
+    },
+    {
+      "id": "C",
+      "symbol": "C",
+      "label": "age cohort",
+      "kind": "chance",
+      "fill": "#D8EAFE",
+      "group": "confounder",
+      "group_label": "confounders",
+      "rank": 0
+    },
+    {
+      "id": "S",
+      "symbol": "S",
+      "label": "socioeconomic context",
+      "kind": "chance",
+      "fill": "#D8EAFE",
+      "group": "confounder",
+      "group_label": "confounders",
+      "rank": 0
+    },
+    {
+      "id": "A",
+      "symbol": "A",
+      "label": "smoking exposure",
+      "kind": "chance",
+      "fill": "#FFE1B3",
+      "group": "exposure",
+      "group_label": "exposure",
+      "rank": 1
+    },
+    {
+      "id": "O",
+      "symbol": "O",
+      "label": "occupational exposure",
+      "kind": "chance",
+      "fill": "#D7F2E3",
+      "group": "co-risk pathway",
+      "group_label": "co-risk pathway",
+      "rank": 1
+    },
+    {
+      "id": "M",
+      "symbol": "M",
+      "label": "tar / airway injury",
+      "kind": "chance",
+      "fill": "#E7D8F7",
+      "group": "mediator",
+      "group_label": "mediator",
+      "rank": 2
+    },
+    {
+      "id": "Y",
+      "symbol": "Y",
+      "label": "lung cancer",
+      "kind": "chance",
+      "fill": "#F8C4C4",
+      "group": "outcome",
+      "group_label": "outcome",
+      "rank": 3
+    }
+  ],
+  "edges": [
+    {"source": "G", "target": "A", "kind": "structural"},
+    {"source": "G", "target": "Y", "kind": "structural"},
+    {"source": "C", "target": "A", "kind": "structural"},
+    {"source": "C", "target": "Y", "kind": "structural"},
+    {"source": "S", "target": "A", "kind": "structural"},
+    {"source": "S", "target": "O", "kind": "structural"},
+    {"source": "S", "target": "Y", "kind": "structural"},
+    {"source": "O", "target": "Y", "kind": "structural"},
+    {"source": "A", "target": "M", "kind": "structural"},
+    {"source": "M", "target": "Y", "kind": "structural"},
+    {"source": "A", "target": "Y", "kind": "structural"}
+  ],
+  "caption": "Classic smoking/lung-cancer confounding SCM. Inherited/family risk G, age cohort C, and socioeconomic context S are pre-exposure common causes of smoking exposure A and lung cancer Y, opening backdoor paths such as A <- G -> Y, A <- C -> Y, and A <- S -> Y. Smoking also acts through tar or airway injury M, while socioeconomic context contributes through occupational exposure O. Estimating the causal effect of A on Y requires blocking the pre-exposure backdoor paths without conditioning away the mediator M. Solid arrows are structural data-generating links. This is a data-generating schematic; it is not fitted causal discovery, model performance evidence, or biological localization."
+}
