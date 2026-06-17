@@ -356,7 +356,9 @@ def _draw_legend(ax: Any, spec: dict[str, Any], mode: str) -> None:
     var_row_gap = 0.043
     color_cols = 3 if len(color_items) > 4 else 2
     color_rows = math.ceil(len(color_items) / color_cols)
-    shape_rows = math.ceil(len(shape_items) / 2)
+    max_shape_label_len = max((len(label) for _, label in shape_items), default=0)
+    shape_cols = 1 if max_shape_label_len > 15 else 2
+    shape_rows = math.ceil(len(shape_items) / shape_cols)
     edge_rows = math.ceil(len(edge_items) / 2)
     height = 0.070
     section_count = 0
@@ -416,11 +418,12 @@ def _draw_legend(ax: Any, spec: dict[str, Any], mode: str) -> None:
     section_break()
     ax.text(0.09, y, "Graph encoding", ha="left", va="top", fontsize=8.2, weight="bold", color="#6B7280")
     y -= 0.065
-    shape_label_fontsize = 6.6 if any(len(label) > 16 for _, label in shape_items) else 7.0
+    shape_label_fontsize = 6.8 if shape_cols == 1 else 6.6 if max_shape_label_len > 16 else 7.0
     for i, (kind, label) in enumerate(shape_items):
-        col = i % 2
-        row = i // 2
-        x = [0.12, 0.66][col]
+        col = i % shape_cols
+        row = i // shape_cols
+        x = [0.12] if shape_cols == 1 else [0.12, 0.66]
+        x = x[col]
         y_item = y - row * 0.064
         _draw_shape(ax, kind, x, y_item, size=0.060)
         ax.text(x + 0.070, y_item, label, ha="left", va="center", fontsize=shape_label_fontsize, color="#374151")
