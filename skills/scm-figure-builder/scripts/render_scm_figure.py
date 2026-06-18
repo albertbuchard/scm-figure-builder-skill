@@ -476,7 +476,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--mode", choices=["math", "expanded"], default="math", help="Figure mode.")
     parser.add_argument("--vizjs-renderer", type=Path, default=None, help="Optional tools/graphviz-renderer/render-dot.mjs path.")
     parser.add_argument("--graph-width", type=int, default=2600, help="Graph-only PNG width for Viz.js renderer.")
-    parser.add_argument("--dpi", type=int, default=220, help="Final Matplotlib composition DPI.")
+    parser.add_argument("--dpi", type=int, default=360, help="Final Matplotlib composition DPI.")
     return parser.parse_args()
 
 
